@@ -44,4 +44,6 @@ profile.cov
 /dashboard/assets/bundle.js
 /dashboard/assets/package-lock.json
 
+/vendor/
+
 **/yarn-error.log

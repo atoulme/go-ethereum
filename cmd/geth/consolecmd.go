@@ -35,10 +35,12 @@ var (
 	consoleFlags = []cli.Flag{utils.JSpathFlag, utils.ExecFlag, utils.PreloadJSFlag}
 
 	consoleCommand = cli.Command{
-		Action:   utils.MigrateFlags(localConsole),
-		Name:     "console",
-		Usage:    "Start an interactive JavaScript environment",
-		Flags:    append(append(append(nodeFlags, rpcFlags...), consoleFlags...), whisperFlags...),
+		Action: utils.MigrateFlags(localConsole),
+		Name:   "console",
+		Usage:  "Start an interactive JavaScript environment",
+		Flags:  append(append(append(append(nodeFlags, rpcFlags...), consoleFlags...), cantoFlags...), whisperFlags...),
+		// Flags: append(append(append(nodeFlags, rpcFlags...), consoleFlags...), whisperFlags...),
+
 		Category: "CONSOLE COMMANDS",
 		Description: `
 The Geth console is an interactive shell for the JavaScript runtime environment

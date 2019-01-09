@@ -2511,6 +2511,7 @@ var Iban = require('./web3/iban');
 var Eth = require('./web3/methods/eth');
 var DB = require('./web3/methods/db');
 var Shh = require('./web3/methods/shh');
+var Can = require('./web3/methods/can');
 var Net = require('./web3/methods/net');
 var Personal = require('./web3/methods/personal');
 var Swarm = require('./web3/methods/swarm');
@@ -2533,6 +2534,7 @@ function Web3 (provider) {
     this.eth = new Eth(this);
     this.db = new DB(this);
     this.shh = new Shh(this);
+    this.can = new Can(this);
     this.net = new Net(this);
     this.personal = new Personal(this);
     this.bzz = new Swarm(this);
@@ -2616,6 +2618,11 @@ var properties = function () {
         new Property({
             name: 'version.whisper',
             getter: 'shh_version',
+            inputFormatter: utils.toDecimal
+        }),
+        new Property({
+            name: 'version.canto',
+            getter: 'can_version',
             inputFormatter: utils.toDecimal
         })
     ];
@@ -3487,6 +3494,9 @@ var getOptions = function (options, type) {
                 toBlock: formatters.inputBlockNumberFormatter(options.toBlock)
             };
         case 'shh':
+            return options;
+
+        case 'can':
             return options;
     }
 };
@@ -5841,6 +5851,143 @@ module.exports = Shh;
 
 
 },{"../filter":29,"../method":36,"./watches":43}],42:[function(require,module,exports){
+
+
+/*
+    This file is part of web3.js.
+
+    web3.js is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    web3.js is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/** @file can.js
+ */
+
+var Method = require('../method');
+var Filter = require('../filter');
+var watches = require('./watches');
+
+var Can = function (web3) {
+    this._requestManager = web3._requestManager;
+
+    var self = this;
+
+    methods().forEach(function(method) {
+        method.attachToObject(self);
+        method.setRequestManager(self._requestManager);
+    });
+};
+
+Can.prototype.newMessageFilter = function (options, callback, filterCreationErrorCallback) {
+    return new Filter(options, 'can', this._requestManager, watches.can(), null, callback, filterCreationErrorCallback);
+};
+
+var methods = function () {
+
+    return [
+        new Method({
+            name: 'version',
+            call: 'can_version',
+            params: 0
+        }),
+        new Method({
+            name: 'info',
+            call: 'can_info',
+            params: 0
+        }),
+        new Method({
+            name: 'help',
+            call: 'can_help',
+            params: 0
+        }),
+        new Method({
+            name: 'markTrustedPeer',
+            call: 'can_markTrustedPeer',
+            params: 1
+        }),
+        new Method({
+            name: 'newKeyPair',
+            call: 'can_newKeyPair',
+            params: 0
+        }),
+        new Method({
+            name: 'addPrivateKey',
+            call: 'can_addPrivateKey',
+            params: 1
+        }),
+        new Method({
+            name: 'deleteKeyPair',
+            call: 'can_deleteKeyPair',
+            params: 1
+        }),
+        new Method({
+            name: 'hasKeyPair',
+            call: 'can_hasKeyPair',
+            params: 1
+        }),
+        new Method({
+            name: 'getPublicKey',
+            call: 'can_getPublicKey',
+            params: 1
+        }),
+        new Method({
+            name: 'getPrivateKey',
+            call: 'can_getPrivateKey',
+            params: 1
+        }),
+        new Method({
+            name: 'newSymKey',
+            call: 'can_newSymKey',
+            params: 0
+        }),
+        new Method({
+            name: 'addSymKey',
+            call: 'can_addSymKey',
+            params: 1
+        }),
+        new Method({
+            name: 'generateSymKeyFromPassword',
+            call: 'can_generateSymKeyFromPassword',
+            params: 1
+        }),
+        new Method({
+            name: 'hasSymKey',
+            call: 'can_hasSymKey',
+            params: 1
+        }),
+        new Method({
+            name: 'getSymKey',
+            call: 'can_getSymKey',
+            params: 1
+        }),
+        new Method({
+            name: 'deleteSymKey',
+            call: 'can_deleteSymKey',
+            params: 1
+        }),
+        new Method({
+            name: 'post',
+            call: 'can_post',
+            params: 1,
+            inputFormatter: [null]
+        })
+    ];
+};
+
+module.exports = Can;
+
+
+},{"../filter":29,"../method":36,"./watches":43}],42:[function(require,module,exports){
+
 /*
     This file is part of web3.js.
 

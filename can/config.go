@@ -1,4 +1,4 @@
-// Copyright 2019 The go-ethereum Authors
+// Copyright 2017 The go-ethereum Authors
 // This file is part of the go-ethereum library.
 //
 // The go-ethereum library is free software: you can redistribute it and/or modify
@@ -14,26 +14,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package cto
+package canto
 
-// var (
-// 	ClientProtocolVersions = []uint{1}
-// 	ProtocolLengths        = map[uint]uint64{lpv1: 15, lpv2: 22}
-// )
+// Config represents the configuration state of a whisper node.
+type Config struct {
+	RestrictConnectionBetweenLightClients bool `toml:",omitempty"`
+}
 
-// const (
-// 	lpv1 = 1
-// 	lpv2 = 2
-// )
-
-// struct CantoBackend {
-
-// }
-
-// func (backend *CantoBackend) runPeer(version uint, p, rw) {
-
-// }
-
-// func (c *cantoCommons) Protocols() []p2p.Protocol {
-// 	return c.makeProtocols(ClientProtocolVersions)
-// }
+// DefaultConfig represents (shocker!) the default configuration.
+var DefaultConfig = Config{
+	RestrictConnectionBetweenLightClients: true,
+}

@@ -14,22 +14,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package canto
-
+package cto
 
 import (
-	"fmt"
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
 )
 
 type cantoCommons struct {
-	cantoBackend              *CantoBackend
+	chainId uint64
 }
 
 func (c *cantoCommons) makeProtocols(versions []uint) []p2p.Protocol {
@@ -37,19 +29,23 @@ func (c *cantoCommons) makeProtocols(versions []uint) []p2p.Protocol {
 	for i, version := range versions {
 		version := version
 		protos[i] = p2p.Protocol{
-			Name:     "cto",
-			Version:  version,
-			Length:   ProtocolLengths[version],
-			NodeInfo: c.nodeInfo,
-			Run: func(p *p2p.Peer, rw p2p.MsgReadWriter) error {
-				return c.cantoBackend.runPeer(version, p, rw)
-			},
-			PeerInfo: func(id enode.ID) interface{} {
-				if p := c.cantoBackend.peers.Peer(fmt.Sprintf("%x", id[:8])); p != nil {
-					return p.Info()
+			Name:    "can",
+			Version: version,
+			Length:  1,
+			NodeInfo: func() interface{} {
+				return map[string]interface{}{
+					"version": "1",
 				}
-				return nil
 			},
+			// Run: func(p *p2p.Peer, rw p2p.MsgReadWriter) error {
+			// 	return c.cantoBackend.runPeer(version, p, rw)
+			// },
+			// PeerInfo: func(id enode.ID) interface{} {
+			// 	if p := c.cantoBackend.peers.Peer(fmt.Sprintf("%x", id[:8])); p != nil {
+			// 		return p.Info()
+			// 	}
+			// 	return nil
+			// },
 		}
 	}
 	return protos

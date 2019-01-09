@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	canto "github.com/araskachoi/canto_go-ethereum/can"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
@@ -57,6 +58,7 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
 	whisper "github.com/ethereum/go-ethereum/whisper/whisperv6"
+
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -582,6 +584,26 @@ var (
 	}
 	WhisperRestrictConnectionBetweenLightClientsFlag = cli.BoolFlag{
 		Name:  "shh.restrict-light",
+		Usage: "Restrict connection between two whisper light clients",
+	}
+
+	// Canto enable flag
+	CantoEnabledFlag = cli.BoolFlag{
+		Name:  "can",
+		Usage: "Enable Canto",
+	}
+	// CantoMaxMessageSizeFlag = cli.IntFlag{
+	// 	Name:  "can.maxmessagesize",
+	// 	Usage: "Max message size accepted",
+	// 	Value: int(canto.DefaultMaxMessageSize),
+	// }
+	// CantoMinPOWFlag = cli.Float64Flag{
+	// 	Name:  "can.pow",
+	// 	Usage: "Minimum POW accepted",
+	// 	Value: canto.DefaultMinimumPoW,
+	// }
+	CantoRestrictConnectionBetweenLightClientsFlag = cli.BoolFlag{
+		Name:  "can.restrict-light",
 		Usage: "Restrict connection between two whisper light clients",
 	}
 
@@ -1331,6 +1353,15 @@ func RegisterShhService(stack *node.Node, cfg *whisper.Config) {
 		return whisper.New(cfg), nil
 	}); err != nil {
 		Fatalf("Failed to register the Whisper service: %v", err)
+	}
+}
+
+// RegisterCanService configures Canto and adds it to the given node.
+func RegisterCanService(stack *node.Node, cfg *canto.Config) {
+	if err := stack.Register(func(n *node.ServiceContext) (node.Service, error) {
+		return canto.MakeProtocols(cfg), nil
+	}); err != nil {
+		Fatalf("Failed to register the Canto service: %v", err)
 	}
 }
 

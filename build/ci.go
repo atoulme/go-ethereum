@@ -80,6 +80,7 @@ var (
 		executablePath("puppeth"),
 		executablePath("rlpdump"),
 		executablePath("wnode"),
+		executablePath("cnode"),
 	}
 
 	// Files that end up in the swarm*.zip archive.
@@ -118,6 +119,10 @@ var (
 			BinaryName:  "wnode",
 			Description: "Ethereum Whisper diagnostic tool",
 		},
+		// {
+		// 	BinaryName:  "cnode",
+		// 	Description: "Ethereum Canto diagnostic tool",
+		// },
 	}
 
 	// A debian package is created for all executables listed here.

@@ -28,6 +28,7 @@ import (
 
 	cli "gopkg.in/urfave/cli.v1"
 
+	canto "github.com/araskachoi/canto_go-ethereum/can"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/dashboard"
 	"github.com/ethereum/go-ethereum/eth"
@@ -43,7 +44,7 @@ var (
 		Name:        "dumpconfig",
 		Usage:       "Show configuration values",
 		ArgsUsage:   "",
-		Flags:       append(append(nodeFlags, rpcFlags...), whisperFlags...),
+		Flags:       append(append(append(nodeFlags, rpcFlags...), whisperFlags...), cantoFlags...),
 		Category:    "MISCELLANEOUS COMMANDS",
 		Description: `The dumpconfig command shows configuration values.`,
 	}
@@ -78,6 +79,7 @@ type ethstatsConfig struct {
 type gethConfig struct {
 	Eth       eth.Config
 	Shh       whisper.Config
+	Can       canto.Config
 	Node      node.Config
 	Ethstats  ethstatsConfig
 	Dashboard dashboard.Config
@@ -102,8 +104,8 @@ func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit)
-	cfg.HTTPModules = append(cfg.HTTPModules, "eth", "shh")
-	cfg.WSModules = append(cfg.WSModules, "eth", "shh")
+	cfg.HTTPModules = append(cfg.HTTPModules, "eth", "shh", "can")
+	cfg.WSModules = append(cfg.WSModules, "eth", "shh", "can")
 	cfg.IPCPath = "geth.ipc"
 	return cfg
 }
@@ -113,6 +115,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	cfg := gethConfig{
 		Eth:       eth.DefaultConfig,
 		Shh:       whisper.DefaultConfig,
+		Can:       canto.DefaultConfig,
 		Node:      defaultNodeConfig(),
 		Dashboard: dashboard.DefaultConfig,
 	}
@@ -151,6 +154,16 @@ func enableWhisper(ctx *cli.Context) bool {
 	return false
 }
 
+// enableCanto returns true in case one of the canto flags is set.
+func enableCanto(ctx *cli.Context) bool {
+	for _, flag := range cantoFlags {
+		if ctx.GlobalIsSet(flag.GetName()) {
+			return true
+		}
+	}
+	return false
+}
+
 func makeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
 	if ctx.GlobalIsSet(utils.ConstantinopleOverrideFlag.Name) {
@@ -175,6 +188,22 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 			cfg.Shh.RestrictConnectionBetweenLightClients = true
 		}
 		utils.RegisterShhService(stack, &cfg.Shh)
+	}
+
+	// Canto must be explicitly enabled by specifying at least 1 canto flag or in dev mode
+	canEnabled := enableCanto(ctx)
+	canAutoEnabled := !ctx.GlobalIsSet(utils.CantoEnabledFlag.Name) && ctx.GlobalIsSet(utils.DeveloperFlag.Name)
+	if canEnabled || canAutoEnabled {
+		// if ctx.GlobalIsSet(utils.WhisperMaxMessageSizeFlag.Name) {
+		// 	cfg.Can.MaxMessageSize = uint32(ctx.Int(utils.CantoMaxMessageSizeFlag.Name))
+		// }
+		// if ctx.GlobalIsSet(utils.CantoMinPOWFlag.Name) {
+		// 	cfg.Can.MinimumAcceptedPOW = ctx.Float64(utils.CantoMinPOWFlag.Name)
+		// }
+		if ctx.GlobalIsSet(utils.CantoRestrictConnectionBetweenLightClientsFlag.Name) {
+			cfg.Can.RestrictConnectionBetweenLightClients = true
+		}
+		utils.RegisterCanService(stack, &cfg.Can)
 	}
 
 	// Add the Ethereum Stats daemon if requested.

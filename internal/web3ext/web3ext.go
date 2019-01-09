@@ -30,6 +30,7 @@ var Modules = map[string]string{
 	"personal":   Personal_JS,
 	"rpc":        RPC_JS,
 	"shh":        Shh_JS,
+	"can":        Can_JS,
 	"swarmfs":    SWARMFS_JS,
 	"txpool":     TxPool_JS,
 }
@@ -650,6 +651,26 @@ web3._extend({
 		new web3._extend.Property({
 			name: 'info',
 			getter: 'shh_info'
+		}),
+	]
+});
+`
+
+const Can_JS = `
+web3._extend({
+	property: 'can',
+	methods: [
+	],
+	properties:
+	[
+		new web3._extend.Property({
+			name: 'version',
+			getter: 'can_version',
+			outputFormatter: web3._extend.utils.toDecimal
+		}),
+		new web3._extend.Property({
+			name: 'info',
+			getter: 'can_info'
 		}),
 	]
 });

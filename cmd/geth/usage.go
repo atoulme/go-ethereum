@@ -247,6 +247,10 @@ var AppHelpFlagGroups = []flagGroup{
 		},
 	},
 	{
+		Name:  "CANTO (EXPERIMENTAL)",
+		Flags: cantoFlags,
+	},
+	{
 		Name: "MISC",
 	},
 }

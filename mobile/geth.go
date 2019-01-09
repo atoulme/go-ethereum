@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	canto "github.com/araskachoi/canto_go-ethereum/can"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/eth/downloader"
@@ -73,6 +74,9 @@ type NodeConfig struct {
 
 	// WhisperEnabled specifies whether the node should run the Whisper protocol.
 	WhisperEnabled bool
+
+	// CantoEnabled specifies whether the node should run the Canto protocol.
+	CantoEnabled bool
 
 	// Listening address of pprof server.
 	PprofAddress string
@@ -185,6 +189,16 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 			return nil, fmt.Errorf("whisper init: %v", err)
 		}
 	}
+
+	// Register the Canto protocol if requested
+	if config.CantoEnabled {
+		if err := rawStack.Register(func(*node.ServiceContext) (node.Service, error) {
+			return canto.MakeProtocols(&canto.DefaultConfig), nil
+		}); err != nil {
+			return nil, fmt.Errorf("canto init: %v", err)
+		}
+	}
+
 	return &Node{rawStack}, nil
 }
 
