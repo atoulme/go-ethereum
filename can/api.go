@@ -24,7 +24,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/node"
+	// "github.com/ethereum/go-ethereum/p2p/enode"
 )
 
 // List of errors
@@ -32,11 +34,6 @@ var (
 	ErrNoStakeToAccessSubnet    = errors.New("no stake to join subnet")
 	ErrNoStakeToBecomeValidator = errors.New("no stake to become a validator")
 	ErrInsufficientStake        = errors.New("not enough funds to stake the minimum amount")
-	ErrSymAsym                  = errors.New("specify either a symmetric or an asymmetric key")
-	ErrInvalidSymmetricKey      = errors.New("invalid symmetric key")
-	ErrInvalidPublicKey         = errors.New("invalid public key")
-	ErrInvalidSigningPubKey     = errors.New("invalid signing public key")
-	ErrNoTopics                 = errors.New("missing topic(s)")
 )
 
 // PublicCantoAPI provides the canto RPC service that can be
@@ -63,19 +60,39 @@ func (api *PublicCantoAPI) Version(ctx context.Context) string {
 }
 
 // Info contains diagnostic information.
-type Info struct {
-	AddressList []accounts.Account
+type NodeInfo struct {
+	AddressList     common.Address
+	HasSubnetAccess bool
+	IsValidator     bool
+	subnetAddress   common.Address
+}
+
+// Account is a copy of the struct from account.go
+// needed to override the type and expose the members to interact with
+type Account struct {
+	Address common.Address `json:"address"` // Ethereum account address derived from the key
+	URL     accounts.URL   `json:"url"`     // Optional resource locator within a backend
 }
 
 // Info returns diagnostic information about the canto node.
-func (api *PublicCantoAPI) Info(ctx context.Context) Info {
-	keydir := "/Users/daniel/Library/Ethereum/keystore"
-	accCache := keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)
-	println(keydir)
-	return Info{
-		AddressList: accCache.Accounts(),
+func (api *PublicCantoAPI) Info(ctx context.Context) []interface{} {
+
+	keydir := node.DefaultDataDir() + "/keystore"
+	keyStore := keystore.NewKeyStore(keydir, keystore.StandardScryptN, keystore.StandardScryptP)
+	Accounts := keyStore.Accounts()
+
+	AccInfo := make([]interface{}, 0)
+	for _, account := range Accounts {
+		AccInfo = append(AccInfo, NodeInfo{
+			AddressList: Account(account).Address,
+		})
 	}
+	return AccInfo
 }
+
+// func (info *Info) CheckSubenetStatus() bool {
+
+// }
 
 // Help returns all the methods available for the canto subprotocol
 func (api *PublicCantoAPI) Help(ctx context.Context) []string {
@@ -86,10 +103,10 @@ func (api *PublicCantoAPI) Help(ctx context.Context) []string {
 
 // MarkTrustedPeer marks a peer trusted, which will allow it to send historic (expired) messages.
 // Note: This function is not adding new nodes, the node needs to exists as a peer.
-func (api *PublicCantoAPI) MarkTrustedPeer(ctx context.Context, url string) (bool, error) {
-	n, err := enode.ParseV4(url)
-	if err != nil {
-		return false, err
-	}
-	return true, api.c.AllowP2PMessagesFromPeer(n.ID().Bytes())
-}
+// func (api *PublicCantoAPI) MarkTrustedPeer(ctx context.Context, url string) (bool, error) {
+// 	n, err := enode.ParseV4(url)
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	return true, api.c.AllowP2PMessagesFromPeer(n.ID().Bytes())
+// }
