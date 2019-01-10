@@ -20,6 +20,7 @@ import (
 	"context"
 
 	canto "github.com/araskachoi/canto_go-ethereum/can"
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -47,6 +48,7 @@ func NewClient(c *rpc.Client) *Client {
 func (sc *Client) Version(ctx context.Context) (string, error) {
 	var result string
 	err := sc.c.CallContext(ctx, &result, "can_version")
+	// println("looloolala")
 	return result, err
 }
 
@@ -63,11 +65,11 @@ func (sc *Client) Help(ctx context.Context) ([]string, error) {
 	return output, err
 }
 
-// func (sc *Client) Accounts(ctx context.Context) ([]string, error) {
-// 	var output []string
-// 	err := sc.c.CallContext(ctx, &output, "eth_accounts")
-// 	return output, err
-// }
+func (sc *Client) Accounts(ctx context.Context) ([]accounts.Account, error) {
+	var accounts []accounts.Account
+	err := sc.c.CallContext(ctx, &accounts, "can_accounts")
+	return accounts, err
+}
 
 // MarkTrustedPeer marks specific peer trusted, which will allow it to send historic (expired) messages.
 // Note This function is not adding new nodes, the node needs to exists as a peer.

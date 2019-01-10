@@ -592,16 +592,6 @@ var (
 		Name:  "can",
 		Usage: "Enable Canto",
 	}
-	// CantoMaxMessageSizeFlag = cli.IntFlag{
-	// 	Name:  "can.maxmessagesize",
-	// 	Usage: "Max message size accepted",
-	// 	Value: int(canto.DefaultMaxMessageSize),
-	// }
-	// CantoMinPOWFlag = cli.Float64Flag{
-	// 	Name:  "can.pow",
-	// 	Usage: "Minimum POW accepted",
-	// 	Value: canto.DefaultMinimumPoW,
-	// }
 	CantoRestrictConnectionBetweenLightClientsFlag = cli.BoolFlag{
 		Name:  "can.restrict-light",
 		Usage: "Restrict connection between two whisper light clients",

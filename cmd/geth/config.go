@@ -194,12 +194,6 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 	canEnabled := enableCanto(ctx)
 	canAutoEnabled := !ctx.GlobalIsSet(utils.CantoEnabledFlag.Name) && ctx.GlobalIsSet(utils.DeveloperFlag.Name)
 	if canEnabled || canAutoEnabled {
-		// if ctx.GlobalIsSet(utils.WhisperMaxMessageSizeFlag.Name) {
-		// 	cfg.Can.MaxMessageSize = uint32(ctx.Int(utils.CantoMaxMessageSizeFlag.Name))
-		// }
-		// if ctx.GlobalIsSet(utils.CantoMinPOWFlag.Name) {
-		// 	cfg.Can.MinimumAcceptedPOW = ctx.Float64(utils.CantoMinPOWFlag.Name)
-		// }
 		if ctx.GlobalIsSet(utils.CantoRestrictConnectionBetweenLightClientsFlag.Name) {
 			cfg.Can.RestrictConnectionBetweenLightClients = true
 		}
