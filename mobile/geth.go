@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	canto "github.com/araskachoi/canto_go-ethereum/can"
+	canto "github.com/araskachoi/canto_go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/eth/downloader"

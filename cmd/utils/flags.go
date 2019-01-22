@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	canto "github.com/araskachoi/canto_go-ethereum/can"
+	canto "github.com/araskachoi/canto_go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
