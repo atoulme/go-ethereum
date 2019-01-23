@@ -32,7 +32,7 @@ import (
 type Peer struct {
 	host *Canto
 	peer *p2p.Peer
-	ws   p2p.MsgReadWriter
+	rw   p2p.MsgReadWriter
 
 	subnetAllowed bool
 
@@ -51,7 +51,7 @@ func newPeer(host *Canto, remote *p2p.Peer, rw p2p.MsgReadWriter) *Peer {
 	return &Peer{
 		host:          host,
 		peer:          remote,
-		ws:            rw,
+		rw:            rw,
 		subnetAllowed: false,
 		trusted:       false,
 		known:         mapset.NewSet(),
@@ -84,11 +84,11 @@ func (peer *Peer) handshake() error {
 	go func() {
 		// bloom := peer.host.BloomFilter()
 
-		errc <- p2p.SendItems(peer.ws, statusCode, ProtocolVersion, isLightNode)
+		errc <- p2p.SendItems(peer.rw, statusCode, ProtocolVersion, isLightNode)
 	}()
 
 	// Fetch the remote status packet and verify protocol match
-	packet, err := peer.ws.ReadMsg()
+	packet, err := peer.rw.ReadMsg()
 	if err != nil {
 		return err
 	}
@@ -205,5 +205,5 @@ func (peer *Peer) ID() []byte {
 }
 
 func (peer *Peer) notifyAboutPeerListChange(peerList map[*Peer]struct{}) error {
-	return p2p.Send(peer.ws, peerListUpdateExCode, peerList)
+	return p2p.Send(peer.rw, peerListUpdateExCode, peerList)
 }

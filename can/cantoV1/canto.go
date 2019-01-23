@@ -3,18 +3,69 @@ package canto
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"encoding/hex"
+	"errors"
 	"fmt"
+	"net/url"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/gorilla/websocket"
 	"golang.org/x/sync/syncmap"
 )
 
-const {
-	StatusMsg             = 0x00
-	PassthroughMsg        = 0x01
+const (
+	StatusMsg      = 0x00
+	PassthroughMsg = 0x01
+)
+
+type Subnet struct {
+	addr string
+	id   string
+	conn *websocket.Conn
+}
+
+func (subnet *Subnet) start() error {
+	u := url.URL{Scheme: "ws", Host: subnet.addr, Path: "/"}
+	log.Debug("connecting to %s", u.String())
+
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	subnet.conn = conn
+	if err != nil {
+		log.Error("dial:", err)
+	}
+	defer subnet.conn.Close()
+
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		for {
+			_, message, err := subnet.conn.ReadMessage()
+			if err != nil {
+				log.Warn("read:", err)
+				return
+			}
+			log.Debug("recv: %s", message)
+		}
+	}()
+
+	return nil
+}
+
+func (subnet *Subnet) stop() error {
+	err := subnet.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		log.Debug("write close:", err)
+	}
+	return subnet.conn.Close()
+}
+
+func (subnet *Subnet) send(message []byte) error {
+	return subnet.conn.WriteMessage(websocket.TextMessage, message)
 }
 
 type Canto struct {
@@ -27,8 +78,9 @@ type Canto struct {
 	protocol p2p.Protocol
 	// filters  *Filters // Message filters installed with Subscribe function
 
-	peerMu sync.RWMutex
-	peers  map[*Peer]struct{}
+	peerMu  sync.RWMutex
+	peers   map[*Peer]struct{}
+	subnets map[string]*Subnet
 
 	privateKeys map[string]*ecdsa.PrivateKey // Private key storage
 	symKeys     map[string][]byte            // Symmetric key storage
@@ -138,24 +190,43 @@ func (canto *Canto) HandlePeer(peer *p2p.Peer, rw p2p.MsgReadWriter) error {
 	cantoPeer.start()
 	defer cantoPeer.stop()
 
-	return canto.runMessageLoop(cantoPeer, rw)
+	return canto.runMessageLoop(cantoPeer)
 }
 
-func (canto *Canto) runMessageLoop(peer *p2p.Peer rw p2p.MsgReadWriter) error {
-	msg, err := p.rw.ReadMsg()
-	if err != nil {
-		return err
-	}
-	p.Log().Trace("Canto message arrived", "code", msg.Code, "bytes", msg.Size)
+func (canto *Canto) runMessageLoop(peer *Peer) error {
+	for {
+		msg, err := peer.rw.ReadMsg()
+		if err != nil {
+			return err
+		}
+		log.Trace("Canto message arrived", "code", msg.Code, "bytes", msg.Size)
 
-	switch msg.Code {
-	case StatusMsg:
-		p.Log().Trace("Received status message")
-		// Status messages should never arrive after the handshake
-		return errResp(ErrExtraStatusMsg, "uncontrolled status message")
-	case PassthroughMsg:
-		p.Log().Trace("Received passthrough message")
+		switch msg.Code {
+		case StatusMsg:
+			log.Trace("Received status message")
+			// Status messages should never arrive after the handshake
+			return errors.New("Received extra status message")
+		case PassthroughMsg:
+			log.Trace("Received passthrough message")
+			elements := make([][]byte, 2)
+			err = rlp.Decode(msg.Payload, elements)
+			if err != nil {
+				return err
+			}
+			subnetID, payload := hex.EncodeToString(elements[0]), elements[1]
+			subnet := canto.subnets[subnetID]
+
+			if subnet != nil {
+				err := subnet.send(payload)
+				if err != nil {
+					return err
+				}
+			} else {
+				log.Debug("No subnet with id %s", subnetID)
+			}
+		}
 	}
+	return nil
 }
 
 // APIs returns the RPC descriptors the Canto implementation offers
