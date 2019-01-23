@@ -12,6 +12,11 @@ import (
 	"golang.org/x/sync/syncmap"
 )
 
+const {
+	StatusMsg             = 0x00
+	PassthroughMsg        = 0x01
+}
+
 type Canto struct {
 	chainID       uint64
 	subnetAddress uint64
@@ -133,9 +138,24 @@ func (canto *Canto) HandlePeer(peer *p2p.Peer, rw p2p.MsgReadWriter) error {
 	cantoPeer.start()
 	defer cantoPeer.stop()
 
-	return nil
+	return canto.runMessageLoop(cantoPeer, rw)
+}
 
-	// return canto.runMessageLoop(cantoPeer, rw)
+func (canto *Canto) runMessageLoop(peer *p2p.Peer rw p2p.MsgReadWriter) error {
+	msg, err := p.rw.ReadMsg()
+	if err != nil {
+		return err
+	}
+	p.Log().Trace("Canto message arrived", "code", msg.Code, "bytes", msg.Size)
+
+	switch msg.Code {
+	case StatusMsg:
+		p.Log().Trace("Received status message")
+		// Status messages should never arrive after the handshake
+		return errResp(ErrExtraStatusMsg, "uncontrolled status message")
+	case PassthroughMsg:
+		p.Log().Trace("Received passthrough message")
+	}
 }
 
 // APIs returns the RPC descriptors the Canto implementation offers
