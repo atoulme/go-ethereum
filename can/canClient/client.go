@@ -19,8 +19,8 @@ package canto
 import (
 	"context"
 
-	canto "github.com/araskachoi/canto_go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/accounts"
+	canto "github.com/ethereum/go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 

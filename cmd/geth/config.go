@@ -28,7 +28,7 @@ import (
 
 	cli "gopkg.in/urfave/cli.v1"
 
-	canto "github.com/araskachoi/canto_go-ethereum/can/cantoV1"
+	canto "github.com/ethereum/go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/dashboard"
 	"github.com/ethereum/go-ethereum/eth"

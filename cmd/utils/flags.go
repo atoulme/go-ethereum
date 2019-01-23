@@ -28,9 +28,11 @@ import (
 	"strings"
 	"time"
 
-	canto "github.com/araskachoi/canto_go-ethereum/can/cantoV1"
+	cli "gopkg.in/urfave/cli.v1"
+
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	canto "github.com/ethereum/go-ethereum/can/cantoV1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/fdlimit"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -58,8 +60,6 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
 	whisper "github.com/ethereum/go-ethereum/whisper/whisperv6"
-
-	"gopkg.in/urfave/cli.v1"
 )
 
 var (
