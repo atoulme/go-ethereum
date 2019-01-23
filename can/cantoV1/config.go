@@ -16,7 +16,7 @@
 
 package canto
 
-// Config represents the configuration state of a whisper node.
+// Config represents the configuration state of a canto node.
 type Config struct {
 	RestrictConnectionBetweenLightClients bool `toml:",omitempty"`
 }

@@ -594,7 +594,7 @@ var (
 	}
 	CantoRestrictConnectionBetweenLightClientsFlag = cli.BoolFlag{
 		Name:  "can.restrict-light",
-		Usage: "Restrict connection between two whisper light clients",
+		Usage: "Restrict connection between two canto light clients",
 	}
 
 	// Metrics flags
