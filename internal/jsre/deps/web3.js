@@ -3044,9 +3044,17 @@ var ContractFactory = function (eth, abi) {
  * @param {Array} abi
  * @returns {ContractFactory} new contract factory
  */
-//var contract = function (abi) {
-    //return new ContractFactory(abi);
-//};
+// var contract = function (abi) {
+//     return new ContractFactory(abi);
+// };
+
+// /**
+//  * @method sendTx
+//  * @param {float64} value
+//  */
+// var sendTx = function (value) {
+//     return value;
+// }
 
 
 
@@ -5875,6 +5883,7 @@ module.exports = Shh;
 var Method = require('../method');
 var Filter = require('../filter');
 var watches = require('./watches');
+var transfer = require('../transfer');
 
 var Can = function (web3) {
     this._requestManager = web3._requestManager;
@@ -5915,18 +5924,24 @@ var methods = function () {
             params: 0
         }),
         new Method({
-            name: 'post',
-            call: 'can_post',
+            name: 'stake',
+            call: 'can_sendTransaction',
             params: 1,
-            inputFormatter: [null]
-        })
+            inputFormatter: [formatters.inputTransactionFormatter]
+        }),
+        new Method({
+            name: 'call',
+            call: 'can_call',
+            params: 2,
+            inputFormatter: [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
+        }),
     ];
 };
 
 module.exports = Can;
 
 
-},{"../filter":29,"../method":36,"./watches":43}],42:[function(require,module,exports){
+},{"../filter":29,"../method":36,"./watches":43,"../transfer":49}],42:[function(require,module,exports){
 
 /*
     This file is part of web3.js.
@@ -6773,7 +6788,7 @@ var exchangeAbi = require('../contracts/SmartExchange.json');
  * Should be used to make Iban transfer
  *
  * @method transfer
- * @param {String} from
+ * @param {String} fro
  * @param {String} to iban
  * @param {Value} value to be tranfered
  * @param {Function} callback, callback

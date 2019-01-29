@@ -275,8 +275,10 @@ func (c *Console) AutoCompleteInput(line string, pos int) (string, []string, str
 // console's available modules.
 func (c *Console) Welcome() {
 	// Print some generic Geth metadata
-	fmt.Fprintf(c.printer, "Welcome to the Geth JavaScript console asdfasdfasdfsdfads!\n\n")
-	fmt.Println("this is what I am printing right now")
+	fmt.Fprintf(c.printer, "Welcome to the Geth JavaScript console!\n")
+	fmt.Println("**************************************************************************************************")
+	fmt.Println("********This is the canto subprotocol POC. Please use the -can flag when intializing geth!********")
+	fmt.Println("**************************************************************************************************")
 	c.jsre.Run(`
 		console.log("instance: " + web3.version.node);
 		console.log("coinbase: " + eth.coinbase);

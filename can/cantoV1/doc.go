@@ -60,4 +60,7 @@ const (
 
 	DefaultTTL           = 50 // seconds
 	DefaultSyncAllowance = 10 // seconds
+
+	// canto protocol minmum values
+	minStakeValue = 1 // in ETH
 )

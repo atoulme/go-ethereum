@@ -660,6 +660,11 @@ const Can_JS = `
 web3._extend({
 	property: 'can',
 	methods: [
+		new web3._extend.Method({
+			name: 'stake',
+			call: 'can_stake',
+			params: 1
+		}),
 	],
 	properties:
 	[
