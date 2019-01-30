@@ -16,12 +16,20 @@
 
 package canto
 
+// SubnetConfig represents the configuration of one subnet
+type SubnetConfig struct {
+	addr string `toml:",omitempty"`
+	id   string `toml:",omitempty"`
+}
+
 // Config represents the configuration state of a canto node.
 type Config struct {
 	RestrictConnectionBetweenLightClients bool `toml:",omitempty"`
+	SubnetsConfig                         []SubnetConfig
 }
 
 // DefaultConfig represents (shocker!) the default configuration.
 var DefaultConfig = Config{
 	RestrictConnectionBetweenLightClients: true,
+	SubnetsConfig:                         make([]SubnetConfig, 0),
 }

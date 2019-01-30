@@ -126,14 +126,22 @@ func MakeProtocols(cfg *Config) *Canto {
 		symKeys:       make(map[string][]byte),
 		peers:         make(map[*Peer]struct{}),
 		quit:          make(chan struct{}),
+		subnets:       make(map[string]*Subnet),
 		syncAllowance: DefaultSyncAllowance,
+	}
+
+	for _, subnet := range cfg.SubnetsConfig {
+		canto.subnets[subnet.id] = &Subnet{
+			addr: subnet.addr,
+			id:   subnet.id,
+		}
 	}
 
 	// canto.filters = NewFilters(canto)
 	canto.settings.Store(restrictConnectionBetweenLightClientsIdx, cfg.RestrictConnectionBetweenLightClients)
 	// canto.settings.Store()
 
-	// p2p whisper sub protocol handler
+	// p2p canto sub protocol handler
 	canto.protocol = p2p.Protocol{
 		Name:    ProtocolName,
 		Version: uint(ProtocolVersion),
